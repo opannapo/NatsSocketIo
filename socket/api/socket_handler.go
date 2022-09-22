@@ -22,8 +22,8 @@ type ISocketHandler interface {
 
 func (sh socketHandler) OnConnect(c *gosocketio.Channel) error {
 	log.Print("OnConnect ", c.Id())
-	/*Handling diganti ke middleware
-	err := logic.SocketService.ValidateRequest(c)
+	//Handling diganti ke middleware
+	/*err := logic.SocketService.ValidateRequest(c)
 	if err != nil {
 		c.Close()
 		log.Err(err).Send()

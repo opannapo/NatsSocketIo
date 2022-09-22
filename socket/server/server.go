@@ -28,24 +28,13 @@ func startSocketServer() {
 		BufferSize:     transport.WsDefaultBufferSize,
 	}
 
-	/*server := gosocketio.NewServer(&tr)
-	serveMux := http.NewServeMux()
-	serveMux.Handle("/socket/", server)
-
-	server.On(gosocketio.OnConnection, api.SocketHandler.OnConnect)
-	server.On(gosocketio.OnDisconnection, api.SocketHandler.OnDisconnect)
-
-	log.Printf(fmt.Sprintf("Server running on %s:%d", config.Config.AppHost, config.Config.AppPort))
-	err := http.ListenAndServe(fmt.Sprintf("%s:%d", config.Config.AppHost, config.Config.AppPort), serveMux)
-	if err != nil {
-		log.Err(err).Send()
-		return
-	}*/
-
 	server := gosocketio.NewServer(&tr)
 	serveMux := http.NewServeMux()
 
-	//serveMux.Handle("/socket/", MiddlewareAuth(server))
+	//no middleware, handling on service layer, checking after soket connected
+	//serveMux.Handle("/socket/", server)
+
+	//handling request on middleware layer, checking before sokey connected
 	serveMux.Handle("/socket/", ValidateRequest(server))
 
 	server.On(gosocketio.OnConnection, api.SocketHandler.OnConnect)
@@ -57,26 +46,6 @@ func startSocketServer() {
 		log.Err(err).Send()
 		return
 	}
-}
-
-func MiddlewareAuth(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		username, password, ok := r.BasicAuth()
-		if !ok {
-			w.Write([]byte(`something went wrong`))
-			log.Err(fmt.Errorf("something went wrong")).Send()
-			return
-		}
-
-		isValid := (username == "test") && (password == "test")
-		if !isValid {
-			w.Write([]byte(`wrong username/password`))
-			log.Err(fmt.Errorf("wrong username/password")).Send()
-			return
-		}
-
-		next.ServeHTTP(w, r)
-	})
 }
 
 func ValidateRequest(next http.Handler) http.Handler {
