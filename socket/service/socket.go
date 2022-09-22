@@ -113,6 +113,7 @@ func (s socketService) AddUserToPrivateRoom(c *gosocketio.Channel) {
 		err := fmt.Errorf("error invalid header x-qrcodesId")
 		log.Err(err).Send()
 		s.closeAndEmitError(c, errors.SocketErrorInvalidHeaderXQrCodesId(err))
+		return
 	}
 
 	s.channels[c.Id()] = c
