@@ -31,14 +31,15 @@ func startSocketServer() {
 	server := gosocketio.NewServer(&tr)
 	serveMux := http.NewServeMux()
 
+	server.On(gosocketio.OnDisconnection, handler.SocketHandler.OnDisconnect)
+
 	//no middleware, handling on service layer, checking after soket connected
-	//serveMux.Handle("/socket/", server)
+	serveMux.Handle("/socket/", server)
+	server.On(gosocketio.OnConnection, handler.SocketHandler.OnConnectHandlingNoMiddleware)
 
 	//handling request on middleware layer, checking before sokey connected
-	serveMux.Handle("/socket/", ValidateRequest(server))
-
-	server.On(gosocketio.OnConnection, handler.SocketHandler.OnConnect)
-	server.On(gosocketio.OnDisconnection, handler.SocketHandler.OnDisconnect)
+	//serveMux.Handle("/socket/", ValidateRequest(server))
+	//server.On(gosocketio.OnConnection, handler.SocketHandler.OnConnectWithMiddleware)
 
 	log.Printf(fmt.Sprintf("Server running on %s:%d", config.Config.AppHost, config.Config.AppPort))
 	err := http.ListenAndServe(fmt.Sprintf("%s:%d", config.Config.AppHost, config.Config.AppPort), serveMux)

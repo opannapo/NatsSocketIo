@@ -16,19 +16,26 @@ func NewSocketHandler() ISocketHandler {
 }
 
 type ISocketHandler interface {
-	OnConnect(c *gosocketio.Channel) error
 	OnDisconnect(c *gosocketio.Channel)
+	OnConnectWithMiddleware(c *gosocketio.Channel) error
+	OnConnectHandlingNoMiddleware(c *gosocketio.Channel) error
 }
 
-func (sh socketHandler) OnConnect(c *gosocketio.Channel) error {
+func (sh socketHandler) OnConnectWithMiddleware(c *gosocketio.Channel) error {
 	log.Print("OnConnect ", c.Id())
-	//Handling diganti ke middleware
-	/*err := logic.SocketService.ValidateRequest(c)
+	logic.SocketService.AddUserToPrivateRoom(c)
+	return nil
+}
+
+func (sh socketHandler) OnConnectHandlingNoMiddleware(c *gosocketio.Channel) error {
+	log.Print("OnConnect ", c.Id())
+
+	err := logic.SocketService.ValidateRequest(c)
 	if err != nil {
 		c.Close()
 		log.Err(err).Send()
 		return err
-	}*/
+	}
 
 	logic.SocketService.AddUserToPrivateRoom(c)
 	return nil

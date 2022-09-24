@@ -54,7 +54,7 @@ func internalRouting() *mux.Router {
 	v1 := r.PathPrefix("/v1").Subrouter().SkipClean(true)
 
 	handler.Post(v1, "/qr/create", handler.Qr.Create)
-	handler.Get(v1, "/qr/scan/{id}", handler.Qr.Create)
+	handler.Get(v1, "/qr/scan/{id}", handler.Qr.Scan)
 	_ = r.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
 		tpl, _ := route.GetPathTemplate()
 		met, _ := route.GetMethods()
