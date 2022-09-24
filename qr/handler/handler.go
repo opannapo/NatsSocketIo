@@ -2,6 +2,8 @@ package handler
 
 import (
 	"encoding/json"
+	"github.com/gorilla/mux"
+	"github.com/rs/zerolog/log"
 	"net/http"
 	ierr "qr/error"
 	"time"
@@ -12,63 +14,76 @@ type ResponseBody struct {
 	ErrorMessage    string      `json:"errorMessage,omitempty"`
 	ErrorHttpStatus int         `json:"errorHttpStatus,omitempty"`
 	ErrorTrace      interface{} `json:"errorTrace,omitempty"`
-	Payload         interface{} `json:"payload,omitempty"`
+	Data            interface{} `json:"data,omitempty"`
 	Time            string      `json:"time"`
 }
 
-func Response(req *http.Request, resp http.ResponseWriter, payload interface{}, err error) {
+func Post(r *mux.Router, path string, cusHandler func(resp http.ResponseWriter, req *http.Request) (payload interface{}, err error)) *mux.Route {
+	return initRoute(r, path, http.MethodPost, cusHandler)
+}
+func Get(r *mux.Router, path string, cusHandler func(resp http.ResponseWriter, req *http.Request) (payload interface{}, err error)) *mux.Route {
+	return initRoute(r, path, http.MethodGet, cusHandler)
+}
+func Put(r *mux.Router, path string, cusHandler func(resp http.ResponseWriter, req *http.Request) (payload interface{}, err error)) *mux.Route {
+	return initRoute(r, path, http.MethodPut, cusHandler)
+}
+func Delete(r *mux.Router, path string, cusHandler func(resp http.ResponseWriter, req *http.Request) (payload interface{}, err error)) *mux.Route {
+	return initRoute(r, path, http.MethodDelete, cusHandler)
+}
+
+func initRoute(r *mux.Router, path string, method string, cusHandler func(resp http.ResponseWriter, req *http.Request) (payload interface{}, err error)) *mux.Route {
+	return r.HandleFunc(path, func(writer http.ResponseWriter, request *http.Request) {
+		result, err := cusHandler(writer, request)
+		response(request, writer, result, err)
+	}).Methods(method)
+}
+
+func response(req *http.Request, resp http.ResponseWriter, payload interface{}, err error) {
 	if err != nil {
 		//Check internal error
 		if ie, ok := ierr.InternalErrors[err]; ok {
-			ResponseError(req, resp, ie.HttpStatus, ie.Message, ie.Code)
+			responseError(req, resp, ie.HttpStatus, ie.Message, ie.Code)
 		} else {
-			ResponseError(req, resp, http.StatusInternalServerError, err.Error(), -1)
+			responseError(req, resp, http.StatusInternalServerError, err.Error(), -1)
 		}
 		return
 	} else {
-		ResponseOk(req, resp, payload)
+		responseOk(req, resp, payload)
 		return
 	}
 }
 
-func ResponseOk(req *http.Request, resp http.ResponseWriter, payload interface{}) {
+func responseOk(req *http.Request, resp http.ResponseWriter, payload interface{}) {
 	body := ResponseBody{
-		Time:    calculateTimeRequest(req),
-		Payload: payload,
+		Time: calculateTimeRequest(req),
+		Data: payload,
 	}
 
 	outputJSON(req, resp, http.StatusOK, body)
 }
 
-func ResponseError(req *http.Request, resp http.ResponseWriter, status int, errMessage string, errCode int) {
+func responseError(req *http.Request, resp http.ResponseWriter, status int, errMessage string, errCode int) {
 	body := ResponseBody{
 		ErrorCode:       errCode,
 		ErrorMessage:    errMessage,
 		ErrorHttpStatus: status,
 		Time:            calculateTimeRequest(req),
-		Payload:         nil,
+		Data:            nil,
 	}
 
 	outputJSON(req, resp, status, body)
 }
 
-func calculateTimeRequest(req *http.Request) string {
-	timeReq, ok := req.Context().Value("time_request").(time.Time)
-	if !ok {
-		panic("error no context time_request")
-	}
-	return time.Since(timeReq).String()
-}
-
 func outputJSON(req *http.Request, resp http.ResponseWriter, status int, payload interface{}) {
 	output, err := json.Marshal(payload)
 	if err != nil {
+		log.Err(err).Send()
 		body := ResponseBody{
 			ErrorCode:       100000,
 			ErrorMessage:    err.Error(),
 			ErrorHttpStatus: http.StatusInternalServerError,
 			Time:            calculateTimeRequest(req),
-			Payload:         nil,
+			Data:            nil,
 		}
 
 		output, _ = json.Marshal(body)
@@ -77,7 +92,17 @@ func outputJSON(req *http.Request, resp http.ResponseWriter, status int, payload
 		return
 	}
 
-	_, _ = resp.Write(output)
 	resp.WriteHeader(status)
+	_, _ = resp.Write(output)
 	return
+}
+
+func calculateTimeRequest(req *http.Request) string {
+	timeReq, ok := req.Context().Value("time_request").(time.Time)
+	if !ok {
+		panic("error no context time_request")
+	}
+
+	diff := time.Since(timeReq).String()
+	return diff
 }

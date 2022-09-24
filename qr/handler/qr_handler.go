@@ -6,12 +6,17 @@ import (
 	"qr/dto"
 )
 
-func Create(w http.ResponseWriter, r *http.Request) {
+var Qr = qr{}
+
+type qr struct{}
+
+func (q *qr) Create(w http.ResponseWriter, r *http.Request) (result interface{}, err error) {
 	payload := dto.CreateQrRequest{}
-	err := payload.Validate(r)
+	err = payload.Validate(r)
 	if err != nil {
 		log.Err(err).Send()
+		return
 	}
 
-	Response(r, w, payload, err)
+	return payload, err
 }

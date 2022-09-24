@@ -11,11 +11,17 @@ type CreateQrRequest struct {
 	QrId string `json:"qr_id" validate:"required"`
 }
 
-func (cqr CreateQrRequest) Validate(r *http.Request) (err error) {
+func (cqr *CreateQrRequest) Validate(r *http.Request) (err error) {
 	err = json.NewDecoder(r.Body).Decode(&cqr)
 	if err != nil {
 		log.Err(err).Send()
 		return ierr.ErrInvalidRequestPayload
 	}
+
+	if cqr.QrId == "" {
+		log.Err(ierr.ErrInvalidCreateQrRequestID).Send()
+		return ierr.ErrInvalidCreateQrRequestID
+	}
+
 	return
 }

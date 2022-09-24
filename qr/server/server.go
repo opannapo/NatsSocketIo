@@ -52,8 +52,8 @@ func internalRouting() *mux.Router {
 	r.Use(BaseMiddleware)
 	v1 := r.PathPrefix("/v1").Subrouter().SkipClean(true)
 
-	v1.HandleFunc("/qr/create", handler.Create).Methods(http.MethodPost)
-	v1.HandleFunc("/qr/scan/{id}", handler.Create).Methods(http.MethodGet)
+	handler.Post(v1, "/qr/create", handler.Qr.Create)
+	handler.Get(v1, "/qr/scan/{id", handler.Qr.Create)
 	_ = r.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
 		tpl, _ := route.GetPathTemplate()
 		met, _ := route.GetMethods()
@@ -66,8 +66,7 @@ func internalRouting() *mux.Router {
 
 func BaseMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		startTime := time.Now()
-		ctx := context.WithValue(r.Context(), "time_request", startTime)
+		ctx := context.WithValue(r.Context(), "time_request", time.Now())
 		w.Header().Add("Content-Type", "application/json")
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
