@@ -14,6 +14,7 @@ func init() {
 
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	log.Logger = log.With().Caller().Logger()
+
 	if isDebugMode {
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
 	} else {

@@ -1,4 +1,4 @@
-package storage
+package repository
 
 import (
 	"fmt"
@@ -9,53 +9,49 @@ import (
 	"qr/config"
 )
 
-var Database *Db
+var Database *db
 
-type Db struct {
+type db struct {
 	Mysql *gorm.DB
 	Redis *redis.Pool
 }
 
-var Storage = NewStorage()
+var Repository = newRepository()
 
-type IStorage interface {
+type IRepository interface {
 	InitDatabase() (err error)
 }
 
-type storage struct{}
+type repository struct{}
 
-func NewStorage() IStorage {
-	return &storage{}
+func newRepository() IRepository {
+	return &repository{}
 }
 
-func (s storage) InitDatabase() (err error) {
-	log.Info().Msg("InitDatabase")
-	_mysql, err := s.mysqlClient()
+func (r *repository) InitDatabase() (err error) {
+	//init mysql
+	_mysql, err := r.mysqlClient()
 	if err != nil {
 		log.Err(err).Send()
 		return
 	}
-	mysqlDb, err := _mysql.DB()
-	defer mysqlDb.Close()
-	if err != nil {
-		log.Err(err).Send()
-	}
 
-	_redis := s.redisClient()
-	cacheConn, err := _redis.Dial()
+	//init redis
+	_redis := r.redisClient()
+	_, err = _redis.Dial()
 	if err != nil {
 		log.Err(err).Send()
 		return
 	}
-	defer cacheConn.Close()
 
-	Database = &Db{
+	Database = &db{
 		Redis: _redis,
+		Mysql: _mysql,
 	}
 	return
 }
 
-func (s storage) mysqlClient() (db *gorm.DB, err error) {
+func (r *repository) mysqlClient() (db *gorm.DB, err error) {
 	dns := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True&loc=Local",
 		config.Config.MysqlUsername,
 		config.Config.MysqlPassword,
@@ -72,7 +68,7 @@ func (s storage) mysqlClient() (db *gorm.DB, err error) {
 	return db, err
 }
 
-func (s storage) redisClient() *redis.Pool {
+func (r *repository) redisClient() *redis.Pool {
 	return &redis.Pool{
 		MaxIdle:   80,
 		MaxActive: 12000,

@@ -14,11 +14,11 @@ type internalError struct {
 }
 
 var ErrInvalidRequestPayload = errors.New("ErrInvalidRequestPayload")
-var ErrInvalidCreateQrRequestID = errors.New("ErrInvalidCreateQrRequestID")
+var ErrInvalidCreateQrAmount = errors.New("ErrInvalidCreateQrAmoung")
 
 func NewInternalErrors() map[error]internalError {
 	return map[error]internalError{
-		ErrInvalidRequestPayload:    {Code: 1, Message: "Invalid Request Payload", HttpStatus: http.StatusBadRequest},
-		ErrInvalidCreateQrRequestID: {Code: 1, Message: "Invalid QR ID", HttpStatus: http.StatusBadRequest},
+		ErrInvalidRequestPayload: {Code: 1, Message: "Invalid Request Payload", HttpStatus: http.StatusBadRequest},
+		ErrInvalidCreateQrAmount: {Code: 1, Message: "Invalid QR Amount", HttpStatus: http.StatusBadRequest},
 	}
 }

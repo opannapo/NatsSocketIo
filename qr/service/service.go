@@ -1,13 +1,11 @@
-package logic
+package service
 
-var Logic = NewLogic()
+var Service = NewService()
 
-type ILogic interface {
+type IService interface{}
+
+func NewService() IService {
+	return &service{}
 }
 
-func NewLogic() ILogic {
-	return &logic{}
-}
-
-type logic struct {
-}
+type service struct{}

@@ -5,8 +5,8 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 	"os"
+	"qr/repository"
 	"qr/server"
-	"qr/storage"
 	"qr/streams"
 	"qr/streams/consumer"
 )
@@ -29,11 +29,17 @@ func Execute() {
 
 func start() {
 	//Init DB
-	err := storage.Storage.InitDatabase()
+	err := repository.Repository.InitDatabase()
 	if err != nil {
 		log.Err(err).Send()
 		return
 	}
+	defer func() {
+		if db, err := repository.Database.Mysql.DB(); err == nil {
+			defer db.Close()
+		}
+	}()
+	defer repository.Database.Redis.Close()
 
 	//Init Consumer
 	err = consumer.StartConsumer()

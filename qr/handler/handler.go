@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/gorilla/mux"
 	"github.com/rs/zerolog/log"
 	"net/http"
@@ -16,6 +17,7 @@ type ResponseBody struct {
 	ErrorTrace      interface{} `json:"errorTrace,omitempty"`
 	Data            interface{} `json:"data,omitempty"`
 	Time            string      `json:"time"`
+	RequestID       string      `json:"request_id"`
 }
 
 func Post(r *mux.Router, path string, cusHandler func(resp http.ResponseWriter, req *http.Request) (payload interface{}, err error)) *mux.Route {
@@ -55,8 +57,9 @@ func response(req *http.Request, resp http.ResponseWriter, payload interface{}, 
 
 func responseOk(req *http.Request, resp http.ResponseWriter, payload interface{}) {
 	body := ResponseBody{
-		Time: calculateTimeRequest(req),
-		Data: payload,
+		Time:      calculateTimeRequest(req),
+		Data:      payload,
+		RequestID: getRequestID(req),
 	}
 
 	outputJSON(req, resp, http.StatusOK, body)
@@ -69,6 +72,7 @@ func responseError(req *http.Request, resp http.ResponseWriter, status int, errM
 		ErrorHttpStatus: status,
 		Time:            calculateTimeRequest(req),
 		Data:            nil,
+		RequestID:       getRequestID(req),
 	}
 
 	outputJSON(req, resp, status, body)
@@ -105,4 +109,14 @@ func calculateTimeRequest(req *http.Request) string {
 
 	diff := time.Since(timeReq).String()
 	return diff
+}
+
+func getRequestID(req *http.Request) string {
+	reId, ok := req.Context().Value("request_id").(string)
+	if !ok {
+		log.Err(errors.New("error no context request_id")).Send()
+		reId = ""
+	}
+
+	return reId
 }
