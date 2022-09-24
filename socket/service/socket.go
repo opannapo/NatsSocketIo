@@ -82,7 +82,7 @@ func (s socketService) ValidateRequest(c *gosocketio.Channel) (err error) {
 	if len(qrID) == 0 {
 		err := fmt.Errorf("invalid header x-qrcodesId")
 		log.Err(err).Send()
-		s.closeAndEmitError(c, errors.SocketErrorInvalidHeaderXQrCodesId(fmt.Errorf("error invalid header x-qrcodesId")))
+		s.closeAndEmitError(c, errors.SocketErrorInvalidHeaderXQrCodesId)
 		return err
 	}
 
@@ -112,7 +112,7 @@ func (s socketService) AddUserToPrivateRoom(c *gosocketio.Channel) {
 	if len(qrcodesId) == 0 {
 		err := fmt.Errorf("error invalid header x-qrcodesId")
 		log.Err(err).Send()
-		s.closeAndEmitError(c, errors.SocketErrorInvalidHeaderXQrCodesId(err))
+		s.closeAndEmitError(c, errors.SocketErrorInvalidHeaderXQrCodesId)
 		return
 	}
 
@@ -120,6 +120,11 @@ func (s socketService) AddUserToPrivateRoom(c *gosocketio.Channel) {
 	newRoom := fmt.Sprintf("room-%s", c.Id())
 	c.Join(newRoom)
 	c.BroadcastTo(newRoom, "/message", fmt.Sprintf("User %s join to room %s", c.Id(), newRoom))
+
+	go func() {
+		time.Sleep(time.Minute * 5)
+		s.closeAndEmitError(c, errors.SocketErrorTimeToLive)
+	}()
 
 	pool := storage.Database.Redis
 	exp := 1 * 60 * 60 * 24 //1day
@@ -149,8 +154,8 @@ func (s socketService) HandleQrCodeUpdate(payload cdto.WalletTransactionQrcodesM
 		c := s.channels[socketId]
 		c.BroadcastTo(val.(string), "/status", string(data))
 
-		//Delay 5 second to close client connection
-		time.Sleep(5 * time.Second)
+		//Delay 3 second to close client connection
+		time.Sleep(3 * time.Second)
 		c.Close()
 		delete(s.channels, c.Id())
 	}

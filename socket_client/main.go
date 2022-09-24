@@ -35,7 +35,7 @@ func main() {
 
 	headers := http.Header{}
 	headers.Add("Authorization", "Bearer "+jwt)
-	//headers.Add("x-qrcodesId", "abcd-abcd-abcd-abcd")
+	headers.Add("x-qrcodesId", "066c5a04-d5ed-4f3d-a5c1-0f4b4e07d912")
 
 	tr := transport.WebsocketTransport{
 		PingInterval:   transport.WsDefaultPingInterval,
@@ -66,13 +66,6 @@ func main() {
 
 	err = c.On(gosocketio.OnConnection, func(h *gosocketio.Channel) {
 		log.Println("On Connected")
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	err = c.On("/QRStatusAckResponse", func(h *gosocketio.Channel, args string) {
-		log.Println("On QRStatusResponse : ", args)
 	})
 	if err != nil {
 		log.Fatal(err)
