@@ -1,9 +1,8 @@
 package consumer
 
 import (
-	"common"
 	"github.com/rs/zerolog/log"
-	"socket/streams"
+	"qr/streams"
 )
 
 func StartConsumer() (err error) {
@@ -13,12 +12,12 @@ func StartConsumer() (err error) {
 		return
 	}
 
-	walletConsumer := newWalletConsumer()
+	/*walletConsumer := newWalletConsumer()
 	_, err = streams.MessageBroker.Nats.Subscribe(common.SubjectWalletQrcodeUpdate, walletConsumer.Update)
 	if err != nil {
 		log.Err(err).Send()
 		return
-	}
+	}*/
 
 	return
 }

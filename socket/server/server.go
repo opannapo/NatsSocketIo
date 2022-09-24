@@ -1,16 +1,16 @@
 package server
 
 import (
+	"common/utils"
 	"encoding/json"
 	"fmt"
 	"github.com/cristalhq/jwt/v3"
-	"github.com/graarh/golang-socketio"
+	gosocketio "github.com/graarh/golang-socketio"
 	"github.com/graarh/golang-socketio/transport"
 	"github.com/rs/zerolog/log"
-	"mono/common/utils"
 	"net/http"
-	"socket/api"
 	"socket/config"
+	"socket/handler"
 	"strings"
 	"time"
 )
@@ -37,8 +37,8 @@ func startSocketServer() {
 	//handling request on middleware layer, checking before sokey connected
 	serveMux.Handle("/socket/", ValidateRequest(server))
 
-	server.On(gosocketio.OnConnection, api.SocketHandler.OnConnect)
-	server.On(gosocketio.OnDisconnection, api.SocketHandler.OnDisconnect)
+	server.On(gosocketio.OnConnection, handler.SocketHandler.OnConnect)
+	server.On(gosocketio.OnDisconnection, handler.SocketHandler.OnDisconnect)
 
 	log.Printf(fmt.Sprintf("Server running on %s:%d", config.Config.AppHost, config.Config.AppPort))
 	err := http.ListenAndServe(fmt.Sprintf("%s:%d", config.Config.AppHost, config.Config.AppPort), serveMux)

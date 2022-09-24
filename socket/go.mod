@@ -2,10 +2,10 @@ module socket
 
 go 1.18
 
-replace mono => ../
+replace common => ../common
 
 require (
-	github.com/cristalhq/jwt/v3 v3.1.0
+	common v0.0.0-00010101000000-000000000000
 	github.com/go-playground/validator/v10 v10.11.1
 	github.com/gomodule/redigo v1.8.9
 	github.com/graarh/golang-socketio v0.0.0-20170510162725-2c44953b9b5f
@@ -13,10 +13,10 @@ require (
 	github.com/rs/zerolog v1.28.0
 	github.com/spf13/cobra v1.5.0
 	github.com/spf13/viper v1.13.0
-	mono v0.0.0-00010101000000-000000000000
 )
 
 require (
+	github.com/cristalhq/jwt/v3 v3.1.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect

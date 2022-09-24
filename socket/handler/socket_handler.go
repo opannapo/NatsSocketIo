@@ -1,4 +1,4 @@
-package api
+package handler
 
 import (
 	gosocketio "github.com/graarh/golang-socketio"
