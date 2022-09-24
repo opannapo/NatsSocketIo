@@ -8,18 +8,18 @@ import (
 	logic "socket/service"
 )
 
-type IWalletConsumer interface {
+type IQrConsumer interface {
 	Update(msg *nats.Msg)
 }
 
-type walletConsumer struct{}
+type qrConsumer struct{}
 
-func newWalletConsumer() IWalletConsumer {
-	return &walletConsumer{}
+func newQrConsumer() IQrConsumer {
+	return &qrConsumer{}
 }
 
-func (c walletConsumer) Update(msg *nats.Msg) {
-	payload := cdto.WalletTransactionQrcodesMessage{}
+func (c qrConsumer) Update(msg *nats.Msg) {
+	payload := cdto.QrCodesMessage{}
 	if err := json.Unmarshal(msg.Data, &payload); err != nil {
 		log.Err(err).Send()
 	}

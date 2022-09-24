@@ -21,7 +21,7 @@ var SocketService = NewSocketService()
 type ISocketService interface {
 	AddUserToPrivateRoom(c *gosocketio.Channel)
 	ValidateRequest(c *gosocketio.Channel) (err error)
-	HandleQrCodeUpdate(payload cdto.WalletTransactionQrcodesMessage)
+	HandleQrCodeUpdate(payload cdto.QrCodesMessage)
 }
 
 func NewSocketService() ISocketService {
@@ -94,12 +94,9 @@ func (s socketService) closeAndEmitError(c *gosocketio.Channel, se dto.SocketErr
 	err := c.Emit("/error", string(dataError))
 	if err != nil {
 		log.Err(err).Send()
-		time.Sleep(1 * time.Second)
-		delete(s.channels, c.Id())
-		c.Close()
-		return
 	}
 
+	//paksa close
 	time.Sleep(1 * time.Second)
 	delete(s.channels, c.Id())
 	c.Close()
@@ -121,33 +118,28 @@ func (s socketService) AddUserToPrivateRoom(c *gosocketio.Channel) {
 	c.Join(newRoom)
 	c.BroadcastTo(newRoom, "/message", fmt.Sprintf("User %s join to room %s", c.Id(), newRoom))
 
-	go func() {
-		time.Sleep(time.Minute * 5)
-		s.closeAndEmitError(c, errors.SocketErrorTimeToLive)
-	}()
-
 	pool := storage.Database.Redis
 	exp := 1 * 60 * 60 * 24 //1day
 	utils.CacheRedis.SetExpired(pool, config.Config.AppName, config.Config.AppEnv, qrcodesId, newRoom, exp)
+
+	go func() {
+		time.Sleep(time.Minute * 2)
+		s.closeAndEmitError(c, errors.SocketErrorTimeToLive)
+	}()
 }
 
-func (s socketService) HandleQrCodeUpdate(payload cdto.WalletTransactionQrcodesMessage) {
+func (s socketService) HandleQrCodeUpdate(payload cdto.QrCodesMessage) {
 	log.Printf("check %+v", payload)
-
-	//ignore status != success / failed
-	if strings.ToLower(payload.QrcodesStatus) != "s" && strings.ToLower(payload.QrcodesStatus) != "f" {
-		return
-	}
 
 	//Check private room by qrcode id
 	pool := storage.Database.Redis
-	val, err := utils.CacheRedis.Get(pool, config.Config.AppName, config.Config.AppEnv, payload.QrcodesID)
+	val, err := utils.CacheRedis.Get(pool, config.Config.AppName, config.Config.AppEnv, payload.ID)
 	if err != nil {
 		log.Err(err).Send()
 		return
 	}
 
-	log.Printf("result for key %s is %s", payload.QrcodesID, val)
+	log.Printf("result for key %s is %s", payload.ID, val)
 	if val != "" {
 		data, _ := json.Marshal(payload)
 		socketId := strings.Replace(val.(string), "room-", "", 1)

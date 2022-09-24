@@ -35,7 +35,7 @@ func main() {
 
 	headers := http.Header{}
 	headers.Add("Authorization", "Bearer "+jwt)
-	headers.Add("x-qrcodesId", "066c5a04-d5ed-4f3d-a5c1-0f4b4e07d912")
+	headers.Add("x-qrcodesId", "fcc0b973-4789-45d7-b47d-86637c38845b")
 
 	tr := transport.WebsocketTransport{
 		PingInterval:   transport.WsDefaultPingInterval,

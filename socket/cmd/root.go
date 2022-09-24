@@ -35,13 +35,20 @@ func start() {
 		return
 	}
 
-	//Init Consumer
-	err = consumer.StartConsumer()
+	//Start Message Broker
+	err = streams.ConnectMessageBroker()
 	if err != nil {
 		log.Err(err).Send()
 		return
 	}
 	defer streams.MessageBroker.Nats.Close()
+
+	//Start Consumer
+	err = consumer.StartConsumer()
+	if err != nil {
+		log.Err(err).Send()
+		return
+	}
 
 	server.StartServer()
 }

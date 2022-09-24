@@ -8,7 +8,6 @@ import (
 	"qr/repository"
 	"qr/server"
 	"qr/streams"
-	"qr/streams/consumer"
 )
 
 var rootCmd = &cobra.Command{
@@ -41,8 +40,8 @@ func start() {
 	}()
 	defer repository.Database.Redis.Close()
 
-	//Init Consumer
-	err = consumer.StartConsumer()
+	//Start Message Broker
+	err = streams.ConnectMessageBroker()
 	if err != nil {
 		log.Err(err).Send()
 		return

@@ -1,11 +1,15 @@
 package service
 
 import (
+	"common"
+	cdto "common/dto"
 	"context"
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
 	"qr/dto"
+	ierr "qr/error"
 	"qr/repository"
+	"qr/streams/publisher"
 	"time"
 )
 
@@ -30,7 +34,7 @@ func (q qrService) Create(ctx context.Context, request dto.CreateQrRequest) (res
 		ID:        uuid.New().String(),
 		Status:    0,
 		CreatedAt: now,
-		ExpiredAt: now.Add(time.Minute * 15),
+		ExpiredAt: now.Add(time.Minute * 2),
 		Amount:    request.Amount,
 	}
 	err = repository.QrDao.Create(newQr)
@@ -67,11 +71,26 @@ func (q qrService) Scan(ctx context.Context, qrID string) (result dto.ScanQrResp
 	ttlInSeconds := qr.ExpiredAt.Sub(time.Now()).String()
 	result = dto.ScanQrResponse{
 		ID:        qr.ID,
-		Status:    qr.Status,
+		Status:    3,
 		CreatedAt: qr.CreatedAt,
 		ExpiredAt: qr.ExpiredAt,
 		Amount:    qr.Amount,
 		TTL:       ttlInSeconds,
 	}
+
+	err = publisher.Nats.Publish(common.SubjectQrcodeUpdate, cdto.QrCodesMessage{
+		ID:        result.ID,
+		Status:    3,
+		CreatedAt: result.CreatedAt,
+		ExpiredAt: result.ExpiredAt,
+		Amount:    result.Amount,
+		TTL:       result.TTL,
+	})
+	if err != nil {
+		log.Err(err).Send()
+		err = ierr.ErrNatsPublish
+		return
+	}
+
 	return
 }
