@@ -3,6 +3,7 @@ package consumer
 import (
 	cdto "common/dto"
 	"encoding/json"
+	"fmt"
 	"github.com/nats-io/nats.go"
 	"github.com/rs/zerolog/log"
 	"notification/service"
@@ -24,7 +25,7 @@ func (e emailConsumer) Send(msg *nats.Msg) {
 		log.Err(err).Send()
 	}
 
-	log.Printf("Message in : %+v", payload)
+	fmt.Printf("(EmailConsumer) NATS Received %s : Message in : %+v \n", msg.Subject, payload)
 	err := service.EmailService.SendEmail(payload)
 	if err != nil {
 		log.Err(err).Send()

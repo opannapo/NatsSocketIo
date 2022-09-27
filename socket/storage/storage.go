@@ -27,8 +27,6 @@ func NewStorage() IStorage {
 }
 
 func (s storage) InitDatabase() (err error) {
-	log.Info().Msg("InitDatabase")
-
 	_redis := s.RedisClient()
 	cacheConn, err := _redis.Dial()
 	if err != nil {

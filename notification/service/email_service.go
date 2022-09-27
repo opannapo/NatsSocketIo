@@ -2,7 +2,7 @@ package service
 
 import (
 	"common/dto"
-	"github.com/rs/zerolog/log"
+	"fmt"
 )
 
 var EmailService = newEmailService()
@@ -18,6 +18,6 @@ func newEmailService() IEmailService {
 type emailService struct{}
 
 func (e emailService) SendEmail(template dto.MasterSendEmailMessage) (err error) {
-	log.Printf("data email %+v ", template)
+	fmt.Printf("Notification Service Send Email with data : %+v \n", template)
 	return nil
 }

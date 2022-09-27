@@ -129,13 +129,11 @@ func (s socketService) AddUserToPrivateRoom(c *gosocketio.Channel) {
 }
 
 func (s socketService) HandleQrCodeUpdate(payload cdto.QrCodesMessage) {
-	log.Printf("check %+v", payload)
-
 	//Check private room by qrcode id
 	pool := storage.Database.Redis
 	val, err := utils.CacheRedis.Get(pool, config.Config.AppName, config.Config.AppEnv, payload.ID)
 	if err != nil {
-		log.Err(err).Send()
+		//log.Err(err).Send()
 		return
 	}
 

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	gosocketio "github.com/graarh/golang-socketio"
 	"github.com/rs/zerolog/log"
 	"socket/service"
@@ -22,13 +23,13 @@ type ISocketHandler interface {
 }
 
 func (sh socketHandler) OnConnectWithMiddleware(c *gosocketio.Channel) error {
-	log.Print("OnConnect ", c.Id())
+	fmt.Printf("OnConnect %s \n", c.Id())
 	logic.SocketService.AddUserToPrivateRoom(c)
 	return nil
 }
 
 func (sh socketHandler) OnConnectHandlingNoMiddleware(c *gosocketio.Channel) error {
-	log.Print("OnConnect ", c.Id())
+	fmt.Printf("OnConnect %s\n", c.Id())
 
 	err := logic.SocketService.ValidateRequest(c)
 	if err != nil {
@@ -42,5 +43,5 @@ func (sh socketHandler) OnConnectHandlingNoMiddleware(c *gosocketio.Channel) err
 }
 
 func (sh socketHandler) OnDisconnect(c *gosocketio.Channel) {
-	log.Print("User:", c.Id(), " closed")
+	fmt.Printf("User:%s closed\n", c.Id())
 }

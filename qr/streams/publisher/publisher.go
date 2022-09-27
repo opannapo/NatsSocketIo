@@ -2,6 +2,7 @@ package publisher
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/nats-io/nats.go"
 	"github.com/rs/zerolog/log"
 	ierr "qr/error"
@@ -41,7 +42,7 @@ func (n natsPublisher) Publish(subject string, payload interface{}) (err error) 
 			log.Err(err).Send()
 			return err
 		}
-		log.Info().Msg("Published message on subject " + subject)
+		fmt.Printf("Publish message on subject %s \n", subject)
 	} else {
 		err = nats.ErrConnectionClosed
 		log.Err(err).Send()

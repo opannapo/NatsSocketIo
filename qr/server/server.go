@@ -29,7 +29,7 @@ func startInternalServer() {
 	}
 
 	go func() {
-		log.Printf("Server running at %s:%d", config.Config.AppHost, config.Config.AppPort)
+		fmt.Printf("Server running at %s:%d \n", config.Config.AppHost, config.Config.AppPort)
 		if err := srv.ListenAndServe(); err != nil {
 			if err != http.ErrServerClosed {
 				log.Fatal().Err(err).Send()
@@ -41,11 +41,11 @@ func startInternalServer() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	log.Print("Shutting down ...")
+	fmt.Print("Shutting down ...\n")
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Fatal().Err(err).Send()
 	}
-	log.Print("Http Server Stopped.")
+	fmt.Print("Http Server Stopped.\n")
 }
 
 func internalRouting() *mux.Router {

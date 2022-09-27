@@ -41,7 +41,7 @@ func startSocketServer() {
 	//serveMux.Handle("/socket/", ValidateRequest(server))
 	//server.On(gosocketio.OnConnection, handler.SocketHandler.OnConnectWithMiddleware)
 
-	log.Printf(fmt.Sprintf("Server running on %s:%d", config.Config.AppHost, config.Config.AppPort))
+	fmt.Printf("Server running on %s:%d\n", config.Config.AppHost, config.Config.AppPort)
 	err := http.ListenAndServe(fmt.Sprintf("%s:%d", config.Config.AppHost, config.Config.AppPort), serveMux)
 	if err != nil {
 		log.Err(err).Send()

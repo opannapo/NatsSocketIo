@@ -3,6 +3,7 @@ package consumer
 import (
 	cdto "common/dto"
 	"encoding/json"
+	"fmt"
 	"github.com/nats-io/nats.go"
 	"github.com/rs/zerolog/log"
 	logic "socket/service"
@@ -24,6 +25,6 @@ func (c qrConsumer) Update(msg *nats.Msg) {
 		log.Err(err).Send()
 	}
 
-	log.Printf("Message in : %+v", payload)
+	fmt.Printf("(QrConsumer) NATS Received %s : Message in : %+v \n", msg.Subject, payload)
 	logic.SocketService.HandleQrCodeUpdate(payload)
 }

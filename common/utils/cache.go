@@ -27,7 +27,7 @@ func (cr *cacheRedis) Get(redisPool *redis.Pool, appName string, appEnv string, 
 	}
 
 	key = appName + "-" + appEnv + "-" + key
-	log.Printf("Get cache %v ", key)
+	//log.Printf("Get cache %v ", key)
 
 	val, err := redisPool.Get().Do("GET", key)
 	if err == nil {
@@ -43,7 +43,7 @@ func (cr *cacheRedis) Get(redisPool *redis.Pool, appName string, appEnv string, 
 func (cr *cacheRedis) Set(redisPool *redis.Pool, appName string, appEnv string, key string, value string) {
 	if redisPool.Get() != nil {
 		key = appName + "-" + appEnv + "-" + key
-		log.Printf("Set cache %v ", key)
+		//log.Printf("Set cache %v ", key)
 		_, err := redisPool.Get().Do("SET", key, value, "")
 		if err != nil {
 			log.Err(err).Send()
@@ -62,7 +62,7 @@ func (cr *cacheRedis) Set(redisPool *redis.Pool, appName string, appEnv string, 
 func (cr *cacheRedis) SetExpired(redisPool *redis.Pool, appName string, appEnv string, key string, value string, expired int) {
 	if redisPool.Get() != nil {
 		key = appName + "-" + appEnv + "-" + key
-		log.Printf("Set cache %v ", key)
+		//log.Printf("Set cache %v ", key)
 		_, err := redisPool.Get().Do("SET", key, value)
 		if err != nil {
 			return
@@ -84,7 +84,7 @@ func (cr *cacheRedis) SetExpired(redisPool *redis.Pool, appName string, appEnv s
 func (cr *cacheRedis) Delete(redisPool *redis.Pool, appName string, appEnv string, key string) {
 	if redisPool.Get() != nil {
 		key = appName + "-" + appEnv + "-" + key
-		log.Printf("Delete cache %v ", key)
+		//log.Printf("Delete cache %v ", key)
 		_, err := redisPool.Get().Do("DEL", key)
 		if err != nil {
 			log.Err(err).Send()

@@ -35,7 +35,7 @@ type qrDao struct{}
 
 func (q qrDao) GetByID(ID string) (result Qr, err error) {
 	result = Qr{ID: ID}
-	err = Database.Mysql.Debug().First(&result).Error
+	err = Database.Mysql.First(&result).Error
 	if err != nil {
 		log.Err(err).Send()
 		if err == gorm.ErrRecordNotFound {
@@ -49,7 +49,7 @@ func (q qrDao) GetByID(ID string) (result Qr, err error) {
 
 func (q qrDao) Scan(ID string) (err error) {
 	query := `UPDATE qr SET status=1 WHERE id = ? and expired_at > ? and status=0`
-	tx := Database.Mysql.Debug().Exec(query, ID, time.Now())
+	tx := Database.Mysql.Exec(query, ID, time.Now())
 	if tx.Error != nil {
 		log.Err(tx.Error).Send()
 		err = ierr.ErrUpdateQrScan
@@ -65,6 +65,6 @@ func (q qrDao) Scan(ID string) (err error) {
 }
 
 func (q qrDao) Create(data Qr) (err error) {
-	err = Database.Mysql.Debug().Create(&data).Error
+	err = Database.Mysql.Create(&data).Error
 	return
 }
