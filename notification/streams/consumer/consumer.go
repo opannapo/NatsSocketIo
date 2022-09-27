@@ -8,7 +8,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 )
 
 func StartConsumer() (err error) {
@@ -23,7 +22,6 @@ func StartConsumer() (err error) {
 	}
 
 	<-interrupt
-	time.Sleep(time.Second)
 	fmt.Println("Notification Consumer Stopped.")
 	return
 }
