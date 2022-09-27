@@ -139,16 +139,17 @@ func (s socketService) HandleQrCodeUpdate(payload cdto.QrCodesMessage) {
 		return
 	}
 
-	log.Printf("result for key %s is %s", payload.ID, val)
 	if val != "" {
 		data, _ := json.Marshal(payload)
 		socketId := strings.Replace(val.(string), "room-", "", 1)
-		c := s.channels[socketId]
-		c.BroadcastTo(val.(string), "/status", string(data))
+		c, exists := s.channels[socketId]
+		if exists {
+			c.BroadcastTo(val.(string), "/status", string(data))
 
-		//Delay 3 second to close client connection
-		time.Sleep(3 * time.Second)
-		c.Close()
-		delete(s.channels, c.Id())
+			//Delay 3 second to close client connection
+			time.Sleep(3 * time.Second)
+			c.Close()
+			delete(s.channels, c.Id())
+		}
 	}
 }

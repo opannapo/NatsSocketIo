@@ -24,3 +24,11 @@ type TemplateForgotPassword struct {
 	AccountLastName      string `json:"accountLastName"`
 	PasswordVerification string `json:"passwordVerification" validate:"required"`
 }
+
+type TemplateTransactionQrSuccess struct {
+	AppUrl            string `json:"appUrl" validate:"required"`
+	AccountFirstName  string `json:"accountFirstName" validate:"required"`
+	AccountMiddleName string `json:"accountMiddleName"`
+	AccountLastName   string `json:"accountLastName"`
+	Amount            int64  `json:"amount" validate:"required"`
+}

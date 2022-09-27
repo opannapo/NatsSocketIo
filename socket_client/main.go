@@ -2,28 +2,28 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"github.com/graarh/golang-socketio"
 	"github.com/graarh/golang-socketio/transport"
 	"log"
 	"net/http"
 	"os"
 	"runtime"
-	"time"
 )
-
-type Channel struct {
-	Channel string `json:"channel"`
-}
-
-type Message struct {
-	QrID    string `json:"qrId"`
-	Channel string `json:"channel"`
-	Text    string `json:"text"`
-}
 
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
+	fmt.Print("Masukan QRID : ")
+	reader := bufio.NewReader(os.Stdin)
+	for {
+		data, _, _ := reader.ReadLine()
+		qrID := string(data)
+		connectANdListenQRStatus(qrID)
+	}
+}
+
+func connectANdListenQRStatus(qrID string) {
 	//valid tapi expired
 	//jwt := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJhZGYwMTRiNTUwMGY0NWUwNjBmZTJkYjM4OGIzMDFkZSIsImlzcyI6InVzZXJfbG9jYWwiLCJzdWIiOiJhdCIsImV4cCI6MTY2MTk4ODkxMywiaWF0IjoxNjYxOTQ1NzEzfQ._UTaHI6sT2_PyppmFF-ULBc3Vj5Frw87kcS10QbHfH0"
 
@@ -35,7 +35,7 @@ func main() {
 
 	headers := http.Header{}
 	headers.Add("Authorization", "Bearer "+jwt)
-	headers.Add("x-qrcodesId", "fcc0b973-4789-45d7-b47d-86637c38845b")
+	headers.Add("x-qrcodesId", qrID)
 
 	tr := transport.WebsocketTransport{
 		PingInterval:   transport.WsDefaultPingInterval,
@@ -81,24 +81,6 @@ func main() {
 	err = c.On("/error", func(h *gosocketio.Channel, args string) {
 		log.Println("On Error : ", args)
 	})
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	time.Sleep(1 * time.Second)
-
-	reader := bufio.NewReader(os.Stdin)
-	for {
-		data, _, _ := reader.ReadLine()
-		command := string(data)
-		sendListenQRStatus(c, command)
-
-	}
-}
-
-func sendListenQRStatus(c *gosocketio.Client, data string) {
-	log.Println("Acking /QRStatus")
-	err := c.Emit("/QRStatus", data)
 	if err != nil {
 		log.Fatal(err)
 	}

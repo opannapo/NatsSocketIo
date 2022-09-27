@@ -6,6 +6,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 	"os"
+	"reflect"
 )
 
 var Config AppConfig
@@ -27,18 +28,12 @@ type AppConfig struct {
 
 func InitConfig() {
 	cfg := AppConfig{}
-	viper.Set(getOsEnv("NAME"))
-	viper.Set(getOsEnv("ENV"))
-	viper.Set(getOsEnv("HOST"))
-	viper.Set(getOsEnv("PORT"))
-	viper.Set(getOsEnv("MODE"))
-	viper.Set(getOsEnv("JWT_SECRET"))
-	viper.Set(getOsEnv("JWT_TOKEN_EXPIRED"))
-	viper.Set(getOsEnv("JWT_REFRESH_TOKEN_EXPIRED"))
-	viper.Set(getOsEnv("REDIS_HOST"))
-	viper.Set(getOsEnv("REDIS_PORT"))
-	viper.Set(getOsEnv("REDIS_PASSWORD"))
-	viper.Set(getOsEnv("NATS_ADDRESS"))
+	v := reflect.ValueOf(cfg)
+	for i := 0; i < v.NumField(); i++ {
+		f := v.Type().Field(i)
+		t := f.Tag.Get("mapstructure")
+		viper.Set(getOsEnv(t))
+	}
 
 	err := viper.Unmarshal(&cfg)
 	if err != nil {
