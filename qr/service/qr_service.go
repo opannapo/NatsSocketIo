@@ -92,5 +92,18 @@ func (q qrService) Scan(ctx context.Context, qrID string) (result dto.ScanQrResp
 		return
 	}
 
+	err = publisher.Nats.Publish(common.SubjectSendEmail, cdto.TemplateTransactionQrSuccess{
+		AppUrl:            "test.com",
+		AccountFirstName:  "opan",
+		AccountMiddleName: "napo",
+		AccountLastName:   "opannapo",
+		Amount:            result.Amount,
+	})
+	if err != nil {
+		log.Err(err).Send()
+		err = ierr.ErrNatsPublish
+		return
+	}
+
 	return
 }

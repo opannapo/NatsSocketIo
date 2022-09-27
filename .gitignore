@@ -4,3 +4,5 @@
 *.env
 *.bashrc
 *.out
+*.run
+*run.sh
