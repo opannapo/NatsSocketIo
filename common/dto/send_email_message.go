@@ -7,7 +7,7 @@ type MasterSendEmailMessage struct {
 }
 
 type TemplateInterface interface {
-	TemplateChangePassword | TemplateForgotPassword
+	TemplateChangePassword | TemplateForgotPassword | TemplateTransactionQrSuccess
 }
 
 type TemplateChangePassword struct {
